@@ -22,14 +22,38 @@ module.exports = {
         },
       },
       {
+        test:/\.html$/,
+        use: ['html-loader']
+      },
+      {
         test: /\.s[ac]ss$/i,
         exclude: "/node_modules/",
+        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+      },
+      {
+        test: /\.(jpg|png|jpeg)$/,
         use: [
-          MiniCssExtractPlugin.loader,
-          "css-loader",
-          "sass-loader",
+          {
+            loader: "file-loader",
+            options: {
+              name: "[name].[ext]",
+              outputPath: "img/",
+              publicPath: "img/",
+            },
+          },
         ],
       },
+      {
+        test: /\.(jpe?g|gif|png|svg)$/i,
+        use: [
+        {
+          loader: 'url-loader',
+          options: {
+            limit: 10000
+          }
+        }
+      ]
+    },
     ],
   },
   plugins: [
