@@ -12,7 +12,7 @@ class ListContainer extends Component {
   }
 
   componentDidMount() {
-    fetch("/users")
+    fetch("/api/users")
       .then((res) => res.json())
       .then((users) => {
         if (!Array.isArray(users)) users = [];
@@ -30,7 +30,7 @@ class ListContainer extends Component {
     if (!this.state.fetchedUsers)
       return (
         <div>
-          <h1>Loading listings, please wait...</h1>
+          <h2 id='loading'>Loading listings, please wait...</h2>
         </div>
       );
 
@@ -49,7 +49,7 @@ class ListContainer extends Component {
       );
     });
 
-    return <div>{userElems}</div>;
+    return <div id='listContainer'>{userElems}</div>;
   }
 }
 

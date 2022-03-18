@@ -63,7 +63,7 @@ module.exports = {
 
   devServer: {
     proxy: {
-      "/users": "http://localhost:3000",
+      "/api/": "http://localhost:3000",
     },
     open: false,
   },
