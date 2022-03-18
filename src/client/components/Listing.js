@@ -18,7 +18,7 @@ function Listing(props) {
         </div>
       </div>
       <div id="showcase">
-        <img className="showcase" id="showcase1" src={"img/creek.png"}/>
+        <img className="showcase" id="showcase1" src={"img/purp.png"}/>
         <img className="showcase" id="showcase2" src={"img/sunset.png"} />
         <img className="showcase" id="showcase3" src={"img/waterfall.png"} />
       </div>

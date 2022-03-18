@@ -14,8 +14,10 @@ userController.getUsers = (req, res, next) => {
   });
 };
 
+// adds single user to res.locals.user
+// finds handle with /:id
 userController.getUser = (req, res, next) => {
-  UserDB.findOne({ handle: req.body.handle }, (err, user) => {
+  UserDB.findOne({ handle: req.params.id }, (err, user) => {
     if (user !== null) {
       res.locals.user = user;
       return next();
@@ -70,7 +72,7 @@ userController.updateUser = (req, res, next) => {
     );
 
   UserDB.findOneAndUpdate(
-    { handle: req.query.user },
+    { handle: req.params.id },
     req.body.update,
     null,
     (err, user) => {
@@ -88,7 +90,7 @@ userController.updateUser = (req, res, next) => {
 };
 
 userController.deleteUser = (req, res, next) => {
-  UserDB.findOne({ handle: req.query.user }, (err, user) => {
+  UserDB.findOne({ handle: req.params.id }, (err, user) => {
     if (err)
       return next(
         "Error finding user in userController.deleteUser: " +

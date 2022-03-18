@@ -25,7 +25,7 @@ app.use("/assets", express.static("../../build"));
 app.use(express.json());
 
 // define route handlers
-app.use("/users", userRouter);
+app.use("/api/users", userRouter);
 
 // home
 app.get("/", (req, res) => {

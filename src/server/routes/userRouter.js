@@ -21,15 +21,16 @@ router.post('/', userController.createUser, userController.getUsers, (req, res)=
 
 // route to update an existing freelancer
 // sends back response body of users
+// specify user with req.params.id
 
-router.put('/', userController.updateUser, userController.getUsers, (req, res)=>{
+router.put('/:id', userController.updateUser, userController.getUsers, (req, res)=>{
     return res.json(res.locals.users);
 })
 
 // route to delete an existing freelancer
 // sends back response body of users
 
-router.delete('/', userController.deleteUser, userController.getUsers, (req, res)=>{
+router.delete('/:id', userController.deleteUser, userController.getUsers, (req, res)=>{
     return res.json(res.locals.users);
 })
 
