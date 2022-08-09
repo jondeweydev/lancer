@@ -1,31 +1,59 @@
-require('dotenv').config();
+require("dotenv").config();
 
 // node modules
 const express = require("express");
-const userController = require("./controllers/userController");
 const mongoose = require("mongoose");
 const path = require("path");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
+const session = require("express-session");
 
 // db async helper function
-const connectDB = require('./config/db');
+const connectDB = require("./config/db");
 connectDB();
 
 // route handlers
 const userRouter = require("./routes/userRouter");
+const loginRouter = require("./routes/loginRouter");
+const listingRouter = require("./routes/listingRouter");
 
 // express
 const PORT = process.env.PORT || 3000;
+const secretKey = process.env.SESSION_SECRET;
 const app = express();
-
-
-// handle requests for static files
-app.use("/assets", express.static("../../build"));
 
 // json parser
 app.use(express.json());
 
+app.use(cors({
+  origin: ['http://localhost:8080'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
+
+// handle requests for static files
+app.use("/assets", express.static("../../build"));
+
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(
+  session({
+    key: "userID",
+    secret: secretKey,
+    saveUninitialized: false,
+    resave: false,
+    cookie: {
+      httpOnly: true,
+      maxAge: parseInt(process.env.SESSION_MAX_AGE),
+    },
+  })
+);
+
 // define route handlers
 app.use("/api/users", userRouter);
+app.use("/api/listings", listingRouter);
+app.use("/auth", loginRouter);
 
 // home
 app.get("/", (req, res) => {
@@ -49,7 +77,7 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log("Server started on PORT 3000");
+  console.log("Server started on PORT " + PORT);
 });
 
 module.exports = app;

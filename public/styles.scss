@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Work+Sans:ital@1&display=swap");
 
 $header-color: #0a8462;
-$font-color: #161616;
+$font-color: #202020;
 $title-color: #eae5e8;
 $background-color: #effbff;
 
@@ -15,6 +15,7 @@ body {
   flex-direction: column;
 }
 
+// top "lancer" header
 #header {
   background-color: $header-color;
   display: flex;
@@ -33,13 +34,55 @@ body {
   }
 }
 
-#loading {
+// bottom navbar
+#dock {
+  background-color: $font-color;
+  position: fixed;
+  overflow: hidden;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 10%;
   display: flex;
-  justify-content: center;
+  justify-content: space-evenly;
+  border-radius: 10px 10px 0px 0px;
+  box-shadow: 0px -5px 15px rgb(66, 64, 64);
+  .dockLink {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .dockButton {
+      color: $background-color;
+      height: 80%;
+      width: 80%;
+
+      :hover {
+        color: rgb(70, 134, 255);
+      }
+    }
+  }
 }
 
+// listing page
 #listContainer {
-    margin-top:35px;
+  margin-top: 50px;
+  margin-bottom: 80px;
+
+  #loading {
+    display: flex;
+    justify-content: center;
+  }
+
+  #sortContainer {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+
+    #sortInput {
+      margin-left: 5px;
+    }
+  }
 
   #listing {
     display: flex;
@@ -91,4 +134,89 @@ body {
       }
     }
   }
+}
+
+// add listing page (eventually signup)
+#addContainer {
+  margin-top: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+
+  height: 100%;
+
+  #addTitle {
+    margin: 5px;
+    font-family: "Work Sans", sans-serif;
+    letter-spacing: 2px;
+    font-size: large;
+  }
+
+  .addIn {
+    text-align: center;
+    margin: 10px;
+    width: 80%;
+  }
+
+  #submit {
+    margin: 10px;
+  }
+}
+
+#profileContainer {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin-top: 50px;
+
+  #profileTitle {
+    font-family: "Work Sans", sans-serif;
+    letter-spacing: 2px;
+    font-size: large;
+  }
+
+  #profileHeader {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    #profilePicture {
+      height: 80px;
+      width: 80px;
+      object-fit: cover;
+    }
+
+    #profileName {
+    }
+  }
+
+  #profileBody {
+    #profileBio {
+    }
+  }
+
+  #profileUpdate {
+  }
+
+  #loginContainer{
+    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+
+    #signupInputs{
+      display: flex;
+      flex-direction: column;
+    }
+  }
+
+}
+
+#pleaseLogin{
+  margin-top: 100px;
+}
+
+#id{
+  display: flex;
+  flex-direction: column;
 }

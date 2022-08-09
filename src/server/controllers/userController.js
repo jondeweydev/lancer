@@ -1,5 +1,8 @@
 const UserDB = require("../models/userModel");
 
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
+
 const userController = {};
 
 userController.getUsers = (req, res, next) => {
@@ -15,14 +18,30 @@ userController.getUsers = (req, res, next) => {
 };
 
 // adds single user to res.locals.user
-// finds handle with /:id
+// finds using req.body, changed from req.params.id for authentication
 userController.getUser = (req, res, next) => {
-  UserDB.findOne({ handle: req.params.id }, (err, user) => {
+  if (!req.body.handle) return next("User handle is required in request body.");
+  UserDB.findOne({ handle: req.body.handle }, (err, user) => {
     if (user !== null) {
       res.locals.user = user;
+      console.log("user found");
       return next();
-    } else
-      return next("Error in userController.getUser: " + JSON.stringify(err));
+    }
+    if (err) {
+      return next({
+        log: "Database Find Error",
+        status: 501,
+        message: {
+          err: "Error in userController.getUser: " + JSON.stringify(err),
+        },
+      });
+    } else {
+      return next({
+        log: "This handle does not exist.",
+        status: 401,
+        message: { err: "Error in userController.getUser: " },
+      });
+    }
   });
 };
 
@@ -30,37 +49,61 @@ userController.createUser = (req, res, next) => {
   // checks if unique user handle is already in use
   UserDB.findOne({ handle: req.body.handle }, (findErr, findRes) => {
     if (findErr) {
-      return next("Error in userController.createUser: " + JSON.stringify(err));
+      return next({
+        log: "Database Find Error",
+        status: 500,
+        message: {
+          err: "Error in userController.createUser: " + JSON.stringify(findErr),
+        },
+      });
     }
     if (findRes === null) {
       if (
         req.body.handle &&
+        req.body.password &&
         req.body.firstName &&
-        req.body.lastName &&
-        req.body.service &&
-        req.body.zip &&
-        req.body.hourly
+        req.body.lastName
       ) {
-        const newUser = {
-          handle: req.body.handle,
-          firstName: req.body.firstName,
-          lastName: req.body.lastName,
-          service: req.body.service,
-          zip: req.body.zip,
-          hourly: req.body.hourly,
-        };
+        let newBio;
+        req.body.bio ? (newBio = req.body.bio) : (newBio = "");
 
-        UserDB.create(newUser, (err, user) => {
-          if (err) {
-            return next(
-              "Error in userController.createUser: " + JSON.stringify(err)
-            );
-          }
-          console.log(newUser.handle + " has been stored in the database.");
-          return next();
+        bcrypt.hash(req.body.password, saltRounds, (err, hash) => {
+          const newUser = {
+            handle: req.body.handle,
+            password: hash,
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            bio: newBio,
+          };
+
+          UserDB.create(newUser, (dbErr, user) => {
+            if (dbErr) {
+              return next({
+                log: "Database Create Error",
+                status: 500,
+                message: {
+                  err:
+                    "Error in userController.createUser: " +
+                    JSON.stringify(dbErr),
+                },
+              });
+            }
+            console.log(newUser.handle + " has been stored in the database.");
+            return next();
+          });
         });
-      } else return next("All fields are required to add a user.");
-    } else return next("This username is already in use.");
+      } else
+        return next({
+          log: "All fields are required to create a new user",
+          status: 401,
+          message: { err: "Error in userController.createUser" },
+        });
+    } else
+      return next({
+        log: "This username is already in use",
+        status: 402,
+        message: { err: "Error in userController.createUser: " },
+      });
   });
 };
 
@@ -83,10 +126,18 @@ userController.updateUser = (req, res, next) => {
       if (!user)
         return next("The handle given in request query does not exist.");
 
-      console.log(req.query.user + " has been updated with the given fields.");
-      return next();
+      console.log(req.params.id + " has been updated with the given fields.");
     }
   );
+
+  const findHandle = req.body.update.handle
+    ? req.body.update.handle
+    : req.params.id;
+
+  UserDB.findOne({ handle: findHandle }, (err, user) => {
+    res.locals.user = user;
+    return next();
+  });
 };
 
 userController.deleteUser = (req, res, next) => {
@@ -108,6 +159,53 @@ userController.deleteUser = (req, res, next) => {
       return next();
     });
   });
+};
+
+userController.login = (req, res, next) => {
+  if (!req.body.password) {
+    return next("Password is required in the request body.");
+  }
+
+  bcrypt.compare(req.body.password, res.locals.user.password, (err, result) => {
+    if (result) {
+      req.session.authenticated = true;
+      req.session.user = res.locals.user;
+      console.log(req.session.user);
+      console.log("user logged in");
+      return next();
+    }
+    if (err) {
+      return next({
+        log: "Bcrypt hash comparison error",
+        status: 500,
+        message: {
+          err: "Error in userController.login: " + JSON.stringify(err),
+        },
+      });
+    } else {
+      return next({
+        log: "Invalid password.",
+        status: 402,
+        message: { err: "Error in userController.login" },
+      });
+    }
+  });
+};
+
+userController.logout = (req, res, next) => {
+  // delete req.session.user;
+  req.session.authenticated = false;
+  req.session.destroy(() => {
+    console.log("User logged out.");
+    res.clearCookie("userID", { path: "/" });
+    res.clearCookie('connect.sid', { path: '/' });
+    return next();
+  });
+};
+
+userController.refreshSession = (req, res, next) => {
+  req.session.user = res.locals.user;
+  return next();
 };
 
 module.exports = userController;
